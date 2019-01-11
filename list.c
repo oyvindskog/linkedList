@@ -29,23 +29,7 @@ void *getElementAt(List *list, int index){
     return tmp->item->data;
 }
 
-void addInteger(List *list, int value){
-    Node *current = list->first;
-    while (current->next != NULL){
-        current = current->next;
-    }
 
-    current->item =(Item*) malloc(sizeof(struct Item));
-    current->item->data = (int*) malloc(sizeof(int));
-    *(int*) current->item->data = value;
-    printf("%d\n", *(int*) current->item->data);
-    Node *tmp = (Node*)malloc(sizeof(struct Node));
-    tmp->next = NULL;
-    tmp->previous = current;
-    tmp->item = NULL;
-    current->next = tmp;
-    list->last = tmp;
-}
 
 void add(List *list, void *data, int size){
     Node *current = list->first;

@@ -33,8 +33,6 @@ List createList();
 
 void *getElementAt(List *list, int index);
 
-void addInteger(List *list, int value);
-
 void add(List *list, void *data, int size);
 
 void addArray(List *list, void **data, int size, int count);
