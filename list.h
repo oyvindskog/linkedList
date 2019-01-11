@@ -1,10 +1,9 @@
 #ifndef LIST_H
 #define LIST_H
 
-typedef struct Point{
-    int x;
-    int y;
-}Point;
+#include <stdbool.h>
+
+
 
 typedef struct Item{
     void *data;
@@ -42,5 +41,9 @@ void print(List *list, Type type);
 void freeList(List *list);
 
 void sortList(List *list, Type type);
+
+void sortT(List *list, bool (*cmp)(void *one, void *other));
+
+void printT(List *list, void (*func)(void *data));
 
 #endif // LIST_H

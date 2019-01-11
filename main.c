@@ -1,6 +1,33 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+
 #include "list.h"
+
+typedef struct Point{
+    int x;
+    int y;
+}Point;
+
+
+bool comparePoints(void *one, void *other){
+    Point *p = (Point*) one;
+    Point *p2 = (Point*) other;
+    if (p->x > p2->x){
+        printf("%d > %d\n",p->x, p->y);
+        return true;
+    }else if(p2->x > p->x){
+        return false;
+    }else{
+        printf(" is %d>%d ?", p->y, p2->y);
+        return (p->y > p2->y);
+    }
+}
+
+void printPoint(void *data){
+    Point *p = (Point*) data;
+    printf("(%d, %d)\n", p->x, p->y);
+}
 
 int main()
 {
@@ -63,7 +90,15 @@ int main()
     p.x = 5;
     p.y = 2;
     add(&pList, &p, sizeof(Point));
-    print(&pList, PointType);
+    p.x = 1;
+    p.y = 2;
+    add(&pList, &p, sizeof(Point));
+
+    printf("\nprinting points\n");
+    printT(&pList, printPoint);
+    sortT(&pList, comparePoints);
+    printf("printing sorted points\n");
+    printT(&pList, printPoint);
     freeList(&pList);
 
     //list of strings

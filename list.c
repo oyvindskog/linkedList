@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+
 
 #include "list.h"
 
@@ -81,10 +81,7 @@ void printString(void *data){
     printf("\n%s", *(char**) data);
 }
 
-void printPoint(void *data){
-    Point *p = (Point*) data;
-    printf("(%d, %d)", p->x, p->y);
-}
+
 
 void print(List *list, Type type){
 
@@ -92,11 +89,19 @@ void print(List *list, Type type){
     printType[Integer] = printInt;
     printType[Float] = printFloat;
     printType[StringType] = printString;
-    printType[PointType] = printPoint;
+    //printType[PointType] = printPoint;
 
     Node *current = list->first;
     while (current->next != NULL){
         printType[type](current->item->data);
+        current = current->next;
+    }
+}
+
+void printT(List *list, void (*func)(void *data)){
+    Node *current = list->first;
+    while (current->next != NULL){
+        func(current->item->data);
         current = current->next;
     }
 }
@@ -115,13 +120,39 @@ void sortList(List *list, Type type){
 
     Node *last = list->last->previous; //last is dummy
 
-    while (last->previous->previous != NULL){ //Stop on element 2
+    while (last->previous != NULL){
         Node *current = list->first;
         while(current != last){
             //compare
             void *thisOne =  current->item->data;
             void *nextOne = current->next->item->data;
             if(compare[type](thisOne, nextOne)){
+                //Swap
+                Item *tmp = current->item;
+                current->item = current->next->item;
+                current->next->item = tmp;
+            }
+            current = current->next;
+        }
+        last = last->previous;
+    }
+}
+
+/*
+ * Sorting based on function cmp
+ * using bubblesort for simplicity.
+ */
+void sortT(List *list, bool (*cmp)(void *one, void *other)){
+    Node *last = list->last->previous; //last is dummy
+    int cnt = 0;
+    while (last->previous != NULL){
+        Node *current = list->first;
+        printf("roind %d\n", ++cnt);
+        while(current != last){
+            //compare
+            void *thisOne =  current->item->data;
+            void *nextOne = current->next->item->data;
+            if(cmp(thisOne, nextOne)){
                 //Swap
                 Item *tmp = current->item;
                 current->item = current->next->item;
