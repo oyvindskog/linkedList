@@ -3,7 +3,9 @@
 
 #include <stdbool.h>
 
-
+/**
+ * Generic linked list
+ */
 
 typedef struct Item{
     void *data;
@@ -12,38 +14,23 @@ typedef struct Item{
 typedef struct Node {
     Item *item;
     struct Node *next;
-    struct Node *previous;
 } Node;
 
-typedef struct List {
-    Node *first;
-    Node *last;
-} List;
+void *getElementAt(Node **head, int index);
 
-typedef enum Type {
-    Integer,
-    Float,
-    StringType,
-    PointType,
-    MAX_TYPES
-}Type;
 
-List createList();
+void append(Node **head, void *data, int size);
 
-void *getElementAt(List *list, int index);
+void prepend(Node **head, void *data, int size);
 
-void add(List *list, void *data, int size);
+void appendArray(Node **head, void **data, int size, int count);
 
-void addArray(List *list, void **data, int size, int count);
+void freeList(Node **head);
 
-void print(List *list, Type type);
+int count(Node **head);
 
-void freeList(List *list);
+void sort(Node **head, bool (*cmp)(void *one, void *other));
 
-void sortList(List *list, Type type);
-
-void sortT(List *list, bool (*cmp)(void *one, void *other));
-
-void printT(List *list, void (*func)(void *data));
+void foreach(Node **head, void (*func)(void *data));
 
 #endif // LIST_H

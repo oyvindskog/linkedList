@@ -1,165 +1,142 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-
 #include "list.h"
 
-List createList(){
-    List list;
-    list.first = (Node*) malloc(sizeof(struct Node));
-    list.first->next = NULL;
-    list.first->previous = NULL;
-    list.first->item = NULL;
-    list.last = list.first;
-    return list;
-}
+/**
+ * Generic linked list
+ */
 
-void *getElementAt(List *list, int index){
-    if (list == NULL){
-        return NULL;
-    }
-    Node *tmp = list->first;
-    for (int i=0; i<index; i++){
-        tmp = tmp->next;
-        if (tmp == NULL){
 
+/* get element with specific index
+ * Result must be casted by caller to correct type
+ * returns null if no such index exists
+ */
+void *getElementAt(Node **head, int index){
+
+    Node **tracer = head;
+    int cnt = 0;
+    while (cnt < index){
+        cnt++;
+        tracer = &(*tracer)->next;
+        if (*tracer == NULL){
             return NULL;
         }
     }
-    return tmp->item->data;
+    return (*tracer)->item->data;
 }
 
+Item *createItem(void *data, int size){
 
+    Item *item;
+    item =(Item*) malloc(sizeof(struct Item));
+    item->data = malloc(size);
 
-void add(List *list, void *data, int size){
-    Node *current = list->first;
-    while (current->next != NULL){
-        current = current->next;
+    for (int i=0; i<size; i++){
+        *(char *)(item->data + i) = *(char *)(data + i);
     }
 
-    current->item =(Item*) malloc(sizeof(struct Item));
-    current->item->data = malloc(size);
-
-    for (int i=0; i<size; i++)
-        *(char *)(current->item->data + i) = *(char *)(data + i);
-
-    Node *tmp = (Node*)malloc(sizeof(struct Node));
-    tmp->next = NULL;
-    tmp->previous = current;
-    tmp->item = NULL;
-    current->next = tmp;
-    list->last = tmp;
+    return item;
 }
 
-void addArray(List *list, void **data, int size, int count){
+Node *createNode(){
+    Node *newNode = (Node*) malloc(sizeof(struct Node));
+    newNode->next = NULL;
+    newNode->item = NULL;
+    return newNode;
+}
+
+// insert new node into end of list
+void append(Node **head, void *data, int size){
+    Node **tracer = head;
+    // Create new node
+    Node *newNode = createNode();
+    newNode->next = NULL;
+    newNode->item = createItem(data, size);
+
+    //loop to end of list
+    while( *tracer ) {
+        tracer = &(*tracer)->next;
+    }
+
+    *tracer = newNode;
+
+}
+
+/* Insert new node into front of list */
+void prepend(Node **head, void *data, int size){
+
+    Node **tracer = head;
+    // Create new node
+    Node *newNode = createNode();
+    newNode->next = *tracer;
+    newNode->item = createItem(data, size);
+
+    *tracer = newNode;
+}
+
+
+void appendArray(Node **head, void **data, int size, int count){
     for (int i=0; i<count; i++){
-        add(list, &data[i], size);
+        append(head, &data[i], size);
     }
 }
 
-
-void freeList(List *list){
-    Node *current = list->first;
-    while (current->next != NULL){
-        Node *tmp = current->next;
-        free(current->item->data);
-        free(current->item);
-        free(current);
-        current = tmp;
+void freeList(Node **head){
+    Node **tracer = head;
+    while (*tracer){
+        Node *tmp = *tracer;
+        *tracer = (*tracer)->next;
+        free(tmp->item->data);
+        free(tmp->item);
+        free(tmp);
     }
 }
 
-void printInt(void *data){
-    printf("\n%d", *(int*) data);
-}
-
-void printFloat(void *data){
-    printf("\n%f", *(float*) data);
-}
-
-void printString(void *data){
-    printf("\n%s", *(char**) data);
-}
-
-
-
-void print(List *list, Type type){
-
-    void (*printType[MAX_TYPES]) (void* data);
-    printType[Integer] = printInt;
-    printType[Float] = printFloat;
-    printType[StringType] = printString;
-    //printType[PointType] = printPoint;
-
-    Node *current = list->first;
-    while (current->next != NULL){
-        printType[type](current->item->data);
-        current = current->next;
+// returns number of elements
+int count(Node **head){
+    Node **tracer = head;
+    int cnt = 1;
+    while (*tracer){
+        cnt++;
+        tracer = &(*tracer)->next;
     }
-}
-
-void printT(List *list, void (*func)(void *data)){
-    Node *current = list->first;
-    while (current->next != NULL){
-        func(current->item->data);
-        current = current->next;
-    }
-}
-
-bool compareInts(void *one, void *other){
-    return (*(int*) one > *(int*) other);
-}
-bool compareFloats(void *one, void *other){
-    return (*(float*) one > *(float*) other);
-}
-
-void sortList(List *list, Type type){
-    bool (*compare[MAX_TYPES]) (void* data, void *otherData);
-    compare[Integer] = compareInts;
-    compare[Float] = compareFloats;
-
-    Node *last = list->last->previous; //last is dummy
-
-    while (last->previous != NULL){
-        Node *current = list->first;
-        while(current != last){
-            //compare
-            void *thisOne =  current->item->data;
-            void *nextOne = current->next->item->data;
-            if(compare[type](thisOne, nextOne)){
-                //Swap
-                Item *tmp = current->item;
-                current->item = current->next->item;
-                current->next->item = tmp;
-            }
-            current = current->next;
-        }
-        last = last->previous;
-    }
+    return cnt;
 }
 
 /*
  * Sorting based on function cmp
  * using bubblesort for simplicity.
  */
-void sortT(List *list, bool (*cmp)(void *one, void *other)){
-    Node *last = list->last->previous; //last is dummy
-    int cnt = 0;
-    while (last->previous != NULL){
-        Node *current = list->first;
-        printf("roind %d\n", ++cnt);
-        while(current != last){
+void sort(Node **head, bool (*cmp)(void *one, void *other)){
+
+    Node **tracer = head;
+    int last = count(head) - 2;
+
+    while (last > 0){
+        tracer = head;
+        int cnt = 0;
+        while(cnt < last){
             //compare
-            void *thisOne =  current->item->data;
-            void *nextOne = current->next->item->data;
+            void *thisOne =  (*tracer)->item->data;
+            void *nextOne = (*tracer)->next->item->data;
             if(cmp(thisOne, nextOne)){
                 //Swap
-                Item *tmp = current->item;
-                current->item = current->next->item;
-                current->next->item = tmp;
+                Item *tmp = (*tracer)->item;
+                (*tracer)->item = (*tracer)->next->item;
+                (*tracer)->next->item = tmp;
             }
-            current = current->next;
+            tracer = &(*tracer)->next;
+            cnt++;
         }
-        last = last->previous;
+        last--;
     }
 }
+
+void foreach(Node **head, void (*func)(void *data)){
+    Node **tracer = head;
+    while( *tracer ){
+        func( (*tracer)->item->data );
+        tracer = &(*tracer)->next;
+    }
+}
+
