@@ -2,8 +2,11 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "minunit.h"
 #include "list.h"
 
+//counter for unit tests
+int tests_run = 0;
 
 /**
  * tests for generic linked list
@@ -66,10 +69,76 @@ void printFloat(void *data){
     printf("%f\n", value);
 }
 
+bool intsLargerThanFive(void *data) {
+    int value = *(int*) data;
+    return (value > 5);
+}
+
+bool myString(void *data){
+    char *str = *(char**) data;
+    return (strcmp(str, "My string") == 0);
+}
+
+
+static char *appendArray_countIncrease(){
+    Node *list = NULL;
+    int initial = count(&list);
+    int arr[10] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    void **array = (void**) arr;
+    appendArray(&list, array, sizeof(int), 10);
+    int increase = count(&list) - initial;
+    mu_assert("Error: Increase not as expected after appendArray", increase == 10);
+    freeList(&list);
+    return 0;
+}
+
+static char *append_countIncrease(){
+    Node *list = NULL;
+    int initial = count(&list);
+    for (int i=0; i<10; i++){
+        int value = 1;
+        append(&list, &value, sizeof(int));
+    }
+    int increase = count(&list) - initial;
+    mu_assert("Error: Increase not as expected after append", increase == 10);
+    freeList(&list);
+    return 0;
+}
+
+static char *prepend_countIncrease(){
+    Node *list = NULL;
+    int initial = count(&list);
+    for (int i=0; i<10; i++){
+        int value = 1;
+        append(&list, &value, sizeof(int));
+    }
+    int increase = count(&list) - initial;
+    mu_assert("Error: Increase not as expected after prepend", increase == 10);
+    freeList(&list);
+    return 0;
+}
+
+static char *all_tests() {
+    mu_run_test(append_countIncrease);
+    mu_run_test(prepend_countIncrease);
+    mu_run_test(appendArray_countIncrease);
+    return 0;
+}
+
 int main()
 {
 
-    printf("lets go");
+    char *result = all_tests();
+    if (result != 0) {
+        printf("%s\n", result);
+    }
+    else {
+        printf("ALL TESTS PASSED\n");
+    }
+    printf("Tests run: %d\n", tests_run);
+
+
+
     // create List
     Node *listOfInts = NULL;
     //add one integer
@@ -83,12 +152,12 @@ int main()
     int intArray[10] = {1,2,3,4,5,6,7,8,9,10};
     void **array = (void**) intArray;
     appendArray(&listOfInts, array, sizeof(int), 10);
+    removeIndex(&listOfInts, 11);
 
     foreach(&listOfInts, printInt);
     // get element by index
     int len = count(&listOfInts);
     for(int i=0; i<len-1; i++){
-        printf("%d\n",i);
         int number = *(int*) getElementAt(&listOfInts, i);
         printf("element at %d = %d\n",i , number);
     }
@@ -96,6 +165,11 @@ int main()
     sort(&listOfInts, compareInts);
     foreach(&listOfInts, printInt);
 
+    Node *ints = where(&listOfInts, intsLargerThanFive, sizeof(int) );
+    printf("ints larger than 5\n");
+    foreach(&ints, printInt);
+
+    freeList(&ints);
     freeList(&listOfInts);
 
 
@@ -167,5 +241,8 @@ int main()
     sort(&sList, compareStrings);
 
     foreach(&sList, printString);
+
+    Node *n = findOne(&sList, myString);
+    printf("found : %s ", *(char**) n->item->data);
     freeList(&sList);
 }

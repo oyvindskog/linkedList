@@ -140,3 +140,67 @@ void foreach(Node **head, void (*func)(void *data)){
     }
 }
 
+
+// returns list of elements matching description
+// specified by cmp function... Returns NULL if no element exists
+Node *where(Node **head, bool (*cmp)(void *data), int size){
+
+    // tracer for original list
+    Node **tracer = head;
+
+    // head of new list
+    Node *headNewList = NULL;
+
+    // tracer for new list
+    Node **tracerNew = &headNewList;
+
+    // loop through list
+    while( *tracer ){
+
+        // append to new list when appropriate
+        if ( cmp((*tracer)->item->data) ){
+            append(tracerNew, (*tracer)->item->data, size);
+            tracerNew = &(*tracerNew)->next;
+        }
+        tracer = &(*tracer)->next;
+    }
+
+    return headNewList;
+
+}
+
+Node *findOne(Node **head, bool (*eq)(void *data)){
+
+    Node **tracer =  head;
+    while ( *tracer ){
+        if (eq( (*tracer)->item->data )){
+            return *tracer;
+        }
+        tracer = &(*tracer)->next;
+    }
+    return NULL;
+}
+
+// remove element at specific index
+// we silently ignore calls with non existing index
+void removeIndex(Node **head, int index){
+    Node **tracer = head;
+    int cnt = 0;
+
+    // Try to loop to correct index
+    while(*tracer && cnt < index){
+        tracer = &(*tracer)->next;
+        cnt++;
+    }
+    // if index exists we remove it
+    if(*tracer){
+        Node *tmp = *tracer;
+        *tracer = (*tracer)->next;
+
+        // Free memory
+        free(tmp->item->data);
+        free(tmp->item);
+        free(tmp);
+    }
+}
+

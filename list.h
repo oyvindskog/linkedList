@@ -33,4 +33,10 @@ void sort(Node **head, bool (*cmp)(void *one, void *other));
 
 void foreach(Node **head, void (*func)(void *data));
 
+Node *where(Node **head, bool (*func)(void *data), int size);
+
+Node *findOne(Node **head, bool (*eq)(void *data));
+
+void removeIndex(Node **head, int index);
+
 #endif // LIST_H
