@@ -18,7 +18,6 @@ typedef struct Node {
 
 void *getElementAt(Node **head, int index);
 
-
 void append(Node **head, void *data, int size);
 
 void prepend(Node **head, void *data, int size);
@@ -38,5 +37,7 @@ Node *where(Node **head, bool (*func)(void *data), int size);
 Node *findOne(Node **head, bool (*eq)(void *data));
 
 void removeIndex(Node **head, int index);
+
+void removeWhen(Node **head, bool (*eq)(void *data));
 
 #endif // LIST_H

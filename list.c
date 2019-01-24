@@ -204,3 +204,26 @@ void removeIndex(Node **head, int index){
     }
 }
 
+
+// Remove elements maching decription given by function eq
+void removeWhen(Node **head, bool (*eq)(void *data)){
+
+    Node **tracer = head;
+
+    //loop through list
+    while( *tracer ) {
+
+        if (eq((*tracer)->item->data) ){
+            //Remove element
+            Node *tmp = *tracer;
+            *tracer = (*tracer)->next;
+            free(tmp->item->data);
+            free(tmp->item);
+            free(tmp);
+        }else{
+            //move to next element
+            tracer = &(*tracer)->next;
+        }
+    }
+}
+

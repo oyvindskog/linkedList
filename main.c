@@ -71,6 +71,7 @@ void printFloat(void *data){
 
 bool intsLargerThanFive(void *data) {
     int value = *(int*) data;
+    printf("is %d larger than 5?\n",value);
     return (value > 5);
 }
 
@@ -153,8 +154,10 @@ int main()
     void **array = (void**) intArray;
     appendArray(&listOfInts, array, sizeof(int), 10);
     removeIndex(&listOfInts, 11);
+    removeIndex(&listOfInts, 3);
 
     foreach(&listOfInts, printInt);
+
     // get element by index
     int len = count(&listOfInts);
     for(int i=0; i<len-1; i++){
@@ -168,6 +171,9 @@ int main()
     Node *ints = where(&listOfInts, intsLargerThanFive, sizeof(int) );
     printf("ints larger than 5\n");
     foreach(&ints, printInt);
+    printf("Remove ints larger than 5\n");
+    removeWhen(&listOfInts, intsLargerThanFive);
+    foreach(&listOfInts, printInt);
 
     freeList(&ints);
     freeList(&listOfInts);
@@ -244,5 +250,7 @@ int main()
 
     Node *n = findOne(&sList, myString);
     printf("found : %s ", *(char**) n->item->data);
+    foreach(&sList, printString);
+
     freeList(&sList);
 }
